@@ -202,10 +202,6 @@ LOG_LEVEL=INFO
 3. **Load** - Insert processed data into PostgreSQL
 4. **Validate** - Run quality checks and generate reports
 
-## 🤝 Contributing
-
-This is a portfolio project demonstrating skills for the Associate Software Engineer position at Axtria.
-
 ## 📝 Key Skills Demonstrated
 
 - ✅ Python OOP, data structures, and algorithms
@@ -221,7 +217,3 @@ This is a portfolio project demonstrating skills for the Associate Software Engi
 ## 📞 Contact
 
 **Candidate for Associate Software Engineer - Platform Architecture**
-
----
-
-*Built with ❤️ for Axtria's DataMAx Platform*
