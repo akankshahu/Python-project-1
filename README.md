@@ -218,6 +218,3 @@ LOG_LEVEL=INFO
 ## 📞 Contact
 
 **Candidate for Associate Software Engineer - Platform Architecture**
-
----
-
