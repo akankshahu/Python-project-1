@@ -215,6 +215,3 @@ LOG_LEVEL=INFO
 - ✅ Unit testing with pytest
 - ✅ Cloud-native architecture
 
-## 📞 Contact
-
-**Candidate for Associate Software Engineer - Platform Architecture**
