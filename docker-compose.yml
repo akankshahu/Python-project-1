@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13
+    container_name: datamax-postgres
+    environment:
+      POSTGRES_DB: datamax
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seed_data.sql:/docker-entrypoint-initdb.d/02-seed-data.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - datamax-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.backend
+    container_name: datamax-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/datamax
+      SECRET_KEY: change-this-secret-key-in-production
+      ENVIRONMENT: production
+      LOG_LEVEL: INFO
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - datamax-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/Dockerfile.frontend
+    container_name: datamax-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - datamax-network
+
+  # Data Pipeline (run once or scheduled)
+  pipeline:
+    build:
+      context: ./data-pipeline
+      dockerfile: ../docker/Dockerfile.pipeline
+    container_name: datamax-pipeline
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/datamax
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./data-pipeline:/app
+    networks:
+      - datamax-network
+    profiles:
+      - pipeline  # Only run when explicitly requested
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  datamax-network:
+    driver: bridge
